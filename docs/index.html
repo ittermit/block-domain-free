@@ -1,0 +1,769 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>Block Domain Free — Free Open-Source Site Blocker for Chrome</title>
+  <meta name="description" content="Block Domain Free is a free, open-source Chrome extension that blocks distracting websites to boost your focus and productivity. No account needed." />
+  <meta name="keywords" content="site blocker, chrome extension, productivity, block websites, focus, open source" />
+  <meta name="author" content="block-domain-free" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Block Domain Free — Free Chrome Extension" />
+  <meta property="og:description" content="Block distracting websites with one click. Free &amp; open-source Chrome extension." />
+  <meta property="og:image" content="hero.png" />
+  <meta property="og:type" content="website" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Variables ──────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #09090f;
+      --surface:  #111118;
+      --surface2: #18181f;
+      --border:   #272736;
+      --accent:   #8b5cf6;
+      --accent2:  #6C3CE1;
+      --accent3:  #a855f7;
+      --danger:   #f43f5e;
+      --success:  #10b981;
+      --text:     #f0f0f8;
+      --muted:    #6b6b8a;
+      --radius:   16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Nav ────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      height: 64px;
+      background: rgba(9, 9, 15, 0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--text);
+    }
+
+    .nav-logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--accent3), var(--accent2));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 20px #8b5cf650;
+    }
+
+    .nav-logo span {
+      font-size: 15px; font-weight: 700; letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #c084fc, #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+
+    .nav-link {
+      color: var(--muted); text-decoration: none; font-size: 14px;
+      font-weight: 500; padding: 7px 14px; border-radius: 8px;
+      transition: color .2s, background .2s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--surface2); }
+
+    .nav-cta {
+      background: linear-gradient(135deg, var(--accent3), var(--accent2));
+      color: white; text-decoration: none; font-size: 13px;
+      font-weight: 600; padding: 8px 18px; border-radius: 9px;
+      transition: opacity .2s, transform .15s;
+      box-shadow: 0 4px 18px #8b5cf640;
+    }
+    .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* ── Hero ───────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 100px 5% 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Radial glow bg */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 30%, #8b5cf615 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 20% 80%, #6C3CE115 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Animated grid lines */
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+      opacity: 0.35;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #8b5cf620, #6C3CE118);
+      border: 1px solid #8b5cf640;
+      color: var(--accent3); font-size: 12px; font-weight: 600;
+      padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 28px;
+      animation: fadeUp .6s ease both;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px; background: var(--success);
+      border-radius: 50%; animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 900; line-height: 1.08;
+      letter-spacing: -2px;
+      animation: fadeUp .6s .1s ease both;
+    }
+
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #c084fc 0%, #8b5cf6 40%, #6366f1 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      max-width: 560px; margin: 24px auto 0;
+      font-size: 18px; color: var(--muted); font-weight: 400;
+      line-height: 1.7;
+      animation: fadeUp .6s .2s ease both;
+    }
+
+    .hero-actions {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: 40px; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp .6s .3s ease both;
+    }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, var(--accent3), var(--accent2));
+      color: white; text-decoration: none; font-size: 15px;
+      font-weight: 600; padding: 13px 28px; border-radius: 12px;
+      box-shadow: 0 8px 30px #8b5cf640;
+      transition: transform .2s, box-shadow .2s, opacity .2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px #8b5cf655;
+    }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); text-decoration: none; font-size: 15px;
+      font-weight: 500; padding: 13px 24px; border-radius: 12px;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); background: #8b5cf610; }
+
+    .hero-img-wrap {
+      margin-top: 60px; position: relative;
+      animation: fadeUp .7s .4s ease both;
+      max-width: 720px; width: 100%;
+    }
+
+    .hero-img-glow {
+      position: absolute; inset: -20px;
+      background: radial-gradient(ellipse at center, #8b5cf625, transparent 70%);
+      border-radius: 32px; filter: blur(20px);
+    }
+
+    .hero-img-wrap img {
+      width: 100%; border-radius: 20px;
+      border: 1px solid var(--border);
+      position: relative; z-index: 1;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Section Base ───────────────────────────────────── */
+    section { padding: 96px 5%; }
+    .section-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800; letter-spacing: -1px; line-height: 1.15;
+    }
+    .section-sub { font-size: 16px; color: var(--muted); margin-top: 12px; max-width: 520px; }
+
+    /* ── Features ───────────────────────────────────────── */
+    #features { background: var(--surface); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px; margin-top: 48px;
+    }
+
+    .feature-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color .3s, transform .2s, box-shadow .2s;
+      cursor: default;
+    }
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(139, 92, 246, 0.12);
+    }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, #8b5cf620, #6C3CE118);
+      border: 1px solid #8b5cf630;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px; font-size: 22px;
+    }
+
+    .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* ── How it works ───────────────────────────────────── */
+    #how-it-works { background: var(--bg); }
+
+    .steps { display: flex; flex-direction: column; gap: 0; margin-top: 48px; max-width: 640px; }
+
+    .step {
+      display: flex; gap: 24px; align-items: flex-start;
+      padding-bottom: 32px; position: relative;
+    }
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute; left: 19px; top: 48px;
+      width: 2px; bottom: 0;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent3), var(--accent2));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px; color: white;
+      box-shadow: 0 0 20px #8b5cf640;
+    }
+
+    .step-content { padding-top: 8px; }
+    .step-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .step-desc { font-size: 14px; color: var(--muted); }
+
+    /* ── Stats ──────────────────────────────────────────── */
+    #stats {
+      background: linear-gradient(135deg, #13111a, #0d0d18);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 5%;
+    }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 32px; max-width: 860px; margin: 0 auto; text-align: center;
+    }
+
+    .stat-num {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900; letter-spacing: -2px;
+      background: linear-gradient(135deg, #c084fc, #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .stat-desc { font-size: 14px; color: var(--muted); margin-top: 6px; font-weight: 500; }
+
+    /* ── Install ────────────────────────────────────────── */
+    #install { background: var(--surface); }
+
+    .install-steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px; margin-top: 48px;
+    }
+
+    .install-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+
+    .install-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent3), var(--accent2));
+      border-radius: 8px; font-weight: 800; font-size: 13px;
+      color: white; margin-bottom: 14px;
+    }
+
+    .install-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .install-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    .install-code {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 18px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 13px; color: #a78bfa;
+      margin-top: 8px; word-break: break-all;
+    }
+
+    /* ── CTA ────────────────────────────────────────────── */
+    #cta {
+      padding: 96px 5%;
+      text-align: center;
+      background: var(--bg);
+      position: relative; overflow: hidden;
+    }
+    #cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 50%, #8b5cf612 0%, transparent 70%);
+    }
+
+    .cta-box {
+      max-width: 600px; margin: 0 auto; position: relative;
+    }
+
+    .cta-box h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900; letter-spacing: -1.5px;
+    }
+    .cta-box p { font-size: 16px; color: var(--muted); margin-top: 14px; }
+    .cta-box .hero-actions { margin-top: 36px; }
+
+    /* ── Footer ─────────────────────────────────────────── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 32px 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      font-size: 13px; color: var(--muted);
+    }
+
+    footer a { color: var(--muted); text-decoration: none; transition: color .2s; }
+    footer a:hover { color: var(--accent); }
+
+    .footer-links { display: flex; gap: 20px; }
+
+    /* ── Screenshots ─────────────────────────────────────── */
+    #screenshots { background: var(--bg); }
+
+    .screenshots-tabs {
+      display: flex; gap: 8px; margin-top: 40px; flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--muted); font-size: 13px; font-weight: 600;
+      padding: 9px 20px; border-radius: 10px;
+      cursor: pointer; transition: all .2s; font-family: inherit;
+    }
+    .tab-btn:hover { border-color: var(--accent); color: var(--text); }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #8b5cf620, #6C3CE118);
+      border-color: var(--accent); color: var(--accent);
+      box-shadow: 0 0 16px #8b5cf620;
+    }
+
+    .screenshots-viewer {
+      margin-top: 28px; position: relative;
+    }
+
+    .screenshot-slide {
+      display: none;
+      animation: fadeIn .35s ease;
+    }
+    .screenshot-slide.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .screenshot-frame {
+      position: relative; border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px #8b5cf620;
+    }
+    .screenshot-frame::before {
+      content: '';
+      position: absolute; inset: -1px;
+      border-radius: 21px;
+      background: linear-gradient(135deg, #8b5cf630, transparent 60%);
+      pointer-events: none; z-index: 2;
+    }
+    .screenshot-frame img {
+      width: 100%; display: block; border-radius: 20px;
+    }
+
+    .screenshot-caption {
+      text-align: center; margin-top: 18px;
+      font-size: 14px; color: var(--muted); font-weight: 500;
+    }
+
+    .screenshots-glow {
+      position: absolute; inset: -40px;
+      background: radial-gradient(ellipse at center, #8b5cf618, transparent 65%);
+      pointer-events: none; border-radius: 40px; filter: blur(30px);
+      z-index: -1;
+    }
+
+    /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 640px) {
+      nav { padding: 0 4%; }
+      .nav-links .nav-link { display: none; }
+      section { padding: 64px 4%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <a class="nav-logo" href="#">
+      <div class="nav-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z" fill="white"/>
+          <path d="M9 12l2 2 4-4" stroke="rgba(0,0,0,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span>Block Domain Free</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="#features">Features</a>
+      <a class="nav-link" href="#screenshots">Screenshots</a>
+      <a class="nav-link" href="#install">Install</a>
+      <a class="nav-cta" href="https://github.com/ittermit/block-domain-free" target="_blank">
+        ★ Star on GitHub
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <div class="hero-grid"></div>
+
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Free & Open Source · Manifest V3
+    </div>
+
+    <h1>
+      Block the noise.<br/>
+      <span class="gradient">Focus on what matters.</span>
+    </h1>
+
+    <p class="hero-sub">
+      A powerful open-source Chrome extension that blocks distracting websites in one click.
+      No accounts, no subscriptions, no telemetry.
+    </p>
+
+    <div class="hero-actions">
+      <a class="btn-primary" href="https://github.com/ittermit/block-domain-free/releases/download/v1.0.0/block-domain-free.zip" download>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Download Extension (.zip)
+      </a>
+      <a class="btn-secondary" href="https://github.com/ittermit/block-domain-free" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+        </svg>
+        View on GitHub
+      </a>
+    </div>
+
+    <div class="hero-img-wrap">
+      <div class="hero-img-glow"></div>
+      <img src="screenshot_blocklist.png" alt="Block Domain Free block list UI screenshot" />
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need to stay focused</h2>
+    <p class="section-sub">Lightweight, privacy-first, and brutally effective at blocking distractions.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🚫</div>
+        <div class="feature-title">Instant Site Blocking</div>
+        <div class="feature-desc">Block any website by domain with a single toggle. Takes effect immediately — no restart required.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Lightning Fast</div>
+        <div class="feature-desc">Content script intercepts requests at <code>document_start</code>. Blocked pages never load.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <div class="feature-title">Beautiful Block Page</div>
+        <div class="feature-desc">Elegant dark-themed blocked page with animated visuals and motivational quotes to keep you on track.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Focus Statistics</div>
+        <div class="feature-desc">Track how many times you were saved from distractions today and all time.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Privacy First</div>
+        <div class="feature-desc">Zero telemetry, zero accounts, zero data sent anywhere. Everything stays on your device.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Open Source</div>
+        <div class="feature-desc">Full source code available on GitHub. Inspect it, fork it, contribute to it — it's all yours.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshots -->
+  <section id="screenshots">
+    <div class="section-label">Screenshots</div>
+    <h2 class="section-title">See it in action</h2>
+    <p class="section-sub">A clean, dark interface designed to get out of your way.</p>
+
+    <div class="screenshots-tabs">
+      <button class="tab-btn active" data-tab="blocklist">Block List</button>
+      <button class="tab-btn" data-tab="popup">Popup</button>
+      <button class="tab-btn" data-tab="stats">Focus Stats</button>
+    </div>
+
+    <div class="screenshots-viewer">
+      <div class="screenshots-glow"></div>
+
+      <div class="screenshot-slide active" id="tab-blocklist">
+        <div class="screenshot-frame">
+          <img src="screenshot_blocklist.png" alt="Block List page — manage blocked websites" />
+        </div>
+        <p class="screenshot-caption">Block List — add, remove, and manage sites to block</p>
+      </div>
+
+      <div class="screenshot-slide" id="tab-popup">
+        <div class="screenshot-frame">
+          <img src="screenshot_popup.png" alt="Extension popup — quick toggle for current site" />
+        </div>
+        <p class="screenshot-caption">Popup — instantly block or unblock the current site</p>
+      </div>
+
+      <div class="screenshot-slide" id="tab-stats">
+        <div class="screenshot-frame">
+          <img src="screenshot_stats.png" alt="Focus Stats — see blocked attempts over time" />
+        </div>
+        <p class="screenshot-caption">Focus Stats — track how many distractions you've avoided</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how-it-works">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">Simple by design</h2>
+    <p class="section-sub">Three steps from install to fully focused.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Install the extension</div>
+          <div class="step-desc">Load the extension in Chrome via Developer Mode. No Chrome Web Store account required.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Add sites to block</div>
+          <div class="step-desc">Click the extension icon on any tab and toggle the switch — or type any domain to block it instantly.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Stay focused</div>
+          <div class="step-desc">Every attempt to visit a blocked site shows a clean, motivating blocked page instead.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section id="stats">
+    <div class="stats-grid">
+      <div>
+        <div class="stat-num" data-target="100">0</div>
+        <div class="stat-desc">% Open Source</div>
+      </div>
+      <div>
+        <div class="stat-num" data-target="0">0</div>
+        <div class="stat-desc">MB of data collected</div>
+      </div>
+      <div>
+        <div class="stat-num" data-target="1">0</div>
+        <div class="stat-desc">Click to block any site</div>
+      </div>
+      <div>
+        <div class="stat-num" data-target="3">0</div>
+        <div class="stat-desc">Manifest V3 compliant</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install">
+    <div class="section-label">Installation</div>
+    <h2 class="section-title">Get started in 60 seconds</h2>
+    <p class="section-sub">No Chrome Web Store listing yet — install directly from GitHub.</p>
+
+    <div class="install-steps">
+      <div class="install-card">
+        <div class="install-num">1</div>
+        <div class="install-title">Clone the repository</div>
+        <div class="install-desc">Download the source code to your computer.</div>
+        <div class="install-code">git clone https://github.com/ittermit/block-domain-free.git</div>
+      </div>
+      <div class="install-card">
+        <div class="install-num">2</div>
+        <div class="install-title">Open Chrome Extensions</div>
+        <div class="install-desc">Navigate to <strong>chrome://extensions</strong> and enable <strong>Developer mode</strong> in the top right corner.</div>
+      </div>
+      <div class="install-card">
+        <div class="install-num">3</div>
+        <div class="install-title">Load unpacked</div>
+        <div class="install-desc">Click <strong>Load unpacked</strong> and select the <code>block-domain-free</code> folder you cloned.</div>
+      </div>
+      <div class="install-card">
+        <div class="install-num">4</div>
+        <div class="install-title">Start blocking!</div>
+        <div class="install-desc">Pin the extension and click its icon to start blocking distracting websites immediately.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta">
+    <div class="cta-box">
+      <h2>Ready to reclaim your focus?</h2>
+      <p>Free forever. No account. No nonsense. Just productivity.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="https://github.com/ittermit/block-domain-free/releases/download/v1.0.0/block-domain-free.zip" download>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Download — It's Free
+        </a>
+        <a class="btn-secondary" href="https://github.com/ittermit/block-domain-free" target="_blank">
+          View Source Code
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <span>© 2024 Block Domain Free. MIT License.</span>
+    <div class="footer-links">
+      <a href="https://github.com/ittermit/block-domain-free" target="_blank">GitHub</a>
+      <a href="https://github.com/ittermit/block-domain-free/issues" target="_blank">Issues</a>
+      <a href="https://github.com/ittermit/block-domain-free/blob/main/LICENSE" target="_blank">License</a>
+    </div>
+  </footer>
+
+  <script>
+    // ── Animate stat counters on scroll ─────────────────
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.querySelectorAll('[data-target]').forEach(el => {
+          const target = +el.dataset.target;
+          const duration = 1200;
+          const start = performance.now();
+          const tick = now => {
+            const p = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(ease * target);
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        });
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.3 });
+
+    const statsSection = document.getElementById('stats');
+    if (statsSection) observer.observe(statsSection);
+
+    // ── Reveal animations on scroll ──────────────────────
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.feature-card, .install-card, .step').forEach(el => {
+      el.style.cssText += 'opacity:0; transform:translateY(24px); transition: opacity .5s ease, transform .5s ease;';
+      revealObserver.observe(el);
+    });
+
+    // ── Screenshot tabs ──────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.screenshot-slide').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
