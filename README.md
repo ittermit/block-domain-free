@@ -2,11 +2,11 @@
 
 > A free, open-source Chrome extension that blocks distracting websites to boost your focus and productivity.
 
-[![Deploy GitHub Pages](https://github.com/ittermit/blocksite-clone/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ittermit/blocksite-clone/actions/workflows/deploy-pages.yml)
+[![Deploy GitHub Pages](https://github.com/ittermit/block-domain-free/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ittermit/block-domain-free/actions/workflows/deploy-pages.yml)
 ![Manifest V3](https://img.shields.io/badge/Manifest-V3-8b5cf6?style=flat)
 ![License](https://img.shields.io/badge/License-MIT-10b981?style=flat)
 
-**🌐 Landing page:** https://ittermit.github.io/blocksite-clone/
+**🌐 Landing page:** https://ittermit.github.io/block-domain-free/
 
 ---
 
@@ -23,21 +23,21 @@
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/ittermit/blocksite-clone.git
+   git clone https://github.com/ittermit/block-domain-free.git
    ```
 
 2. Open Chrome and navigate to `chrome://extensions`
 
 3. Enable **Developer mode** (top-right toggle)
 
-4. Click **Load unpacked** → select the `blocksite-clone` folder
+4. Click **Load unpacked** → select the `block-domain-free` folder
 
 5. Pin the extension and start blocking! 🎉
 
 ## 📁 Project Structure
 
 ```
-blocksite-clone/
+block-domain-free/
 ├── manifest.json          # Chrome Extension MV3 manifest
 ├── service-worker.js      # Background: blocking logic & storage
 ├── content.js             # Content script: fast first-paint redirect
