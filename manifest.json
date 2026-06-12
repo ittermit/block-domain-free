@@ -1,9 +1,9 @@
-﻿{
+{
   "manifest_version": 3,
-  "name": "Block Domain Free — Site Blocker",
+  "name": "Block Domain Free",
   "short_name": "Block Domain Free",
   "version": "1.0.0",
-  "description": "Block distracting websites and boost your productivity.",
+  "description": "Block distracting websites and boost your productivity. Free & open-source.",
   "icons": {
     "16":  "icons/icon16.png",
     "32":  "icons/icon32.png",
@@ -13,8 +13,8 @@
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
-      "16":  "icons/icon16.png",
-      "32":  "icons/icon32.png"
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
     }
   },
   "background": {
@@ -37,7 +37,7 @@
   "host_permissions": ["<all_urls>"],
   "web_accessible_resources": [
     {
-      "resources": ["blocked/blocked.html"],
+      "resources": ["blocked/blocked.html", "blocked/blocked.css", "blocked/blocked.js"],
       "matches": ["<all_urls>"]
     }
   ]
